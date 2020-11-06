@@ -3,25 +3,67 @@ package main
 import (
 	"flag"
 	"fmt"
-	lab2 "github.com/roman-mazur/architecture-lab-2"
+	"io"
+	"os"
+	"strings"
+
+	lab2 "github.com/Kolbasen/lab2"
 )
 
 var (
 	inputExpression = flag.String("e", "", "Expression to compute")
-	// TODO: Add other flags support for input and output configuration.
+	inputFile       = flag.String("f", "", "Input file")
+	outputFile      = flag.String("o", "", "Output file")
 )
+
+func getInput(inputString *string) (io.Reader, error) {
+	if *inputFile != "" {
+		input, err := os.Open(*inputFile)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return nil, err
+		}
+		return input, nil
+	}
+	return strings.NewReader(*inputExpression), nil
+}
+
+func getOutput(outputString *string) (io.Writer, error) {
+	if *outputFile != "" {
+		output, err := os.Create(*outputFile)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return nil, err
+		}
+		return output, nil
+	}
+	return os.Stdout, nil
+}
 
 func main() {
 	flag.Parse()
 
-	// TODO: Change this to accept input from the command line arguments as described in the task and
-	//       output the results using the ComputeHandler instance.
-	//       handler := &lab2.ComputeHandler{
-	//           Input: {construct io.Reader according the command line parameters},
-	//           Output: {construct io.Writer according the command line parameters},
-	//       }
-	//       err := handler.Compute()
+	input, err := getInput(inputFile)
 
-	res, _ := lab2.PrefixToPostfix("+ 2 2")
-	fmt.Println(res)
+	if err != nil {
+		return
+	}
+
+	output, err := getOutput(outputFile)
+
+	if err != nil {
+		return
+	}
+
+	handler := &lab2.ComputeHandler{
+		Input:  input,
+		Output: output,
+	}
+
+	err = handler.Compute()
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 }
