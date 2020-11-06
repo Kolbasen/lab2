@@ -78,7 +78,7 @@ func EvaluatePrefix(input string) (string, error) {
 		}
 		if len(s) == 1 {
 			result := s[0]
-			return result, nil
+			return result + "LOOOL", nil
 		}
 	}
 }
